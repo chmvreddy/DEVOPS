@@ -1,0 +1,147 @@
+The Nautilus DevOps team want to install and set up a simple httpd web server on all app servers in Stratos DC. They also want to deploy a sample web page using Ansible only. Therefore, prepare the required playbook to complete this task. Find more details about the task below.
+
+
+a.We already have an inventory file under /home/thor/ansible on jump host. Create a playbook.yml under /home/thor/ansible on jump host itself.
+
+b.Using the playbook install httpd web server on all app servers, and make sure its service is up and running.
+
+c.Create a file /var/www/html/index.html with content:
+  This is a Nautilus sample file, created using Ansible!
+
+d.Using lineinfile Ansible module add some more content in /var/www/html/index.html file. Below is the content:
+  Welcome to Nautilus Group!
+
+Also make sure this new line is added at the top of the file.
+
+e.The /var/www/html/index.html file's user and group owner should be apache on all app servers.
+
+f.The /var/www/html/index.html file's permissions should be 0755 on all app servers.
+
+Note: Validation will try to run playbook using command ansible-playbook -i inventory playbook.yml so please make sure playbook works this way, without passing any extra arguments.
+
+
+ON JUMP SERVER
+==============
+    1  cd /home/thor/ansible/
+    2  ls
+    3  cat inventory
+    4  cat ansible.cfg
+    5  ansible -version
+    6  ansible --version
+    7  hostnamectl
+    8  cd
+    9  hostnamectl
+   10  sudo hostnamectl
+   11  cd /home/thor/ansible/
+   12  ls
+   13  vi playbook.yml
+   14  ansible-playbook -i inventory playbook.yml
+   15  vi playbook.yml
+   16  ansible-playbook -i inventory playbook.yml
+   17  vi playbook.yml
+   18  ansible-playbook -i inventory playbook.yml
+   19  vi playbook.yml
+   20  ansible-playbook -i inventory playbook.yml
+   21  ls
+   22  cat inventory
+   23  cat ansible.cfg
+   24  curl 172.16.238.10
+   25  curl 172.16.238.11
+   26  curl 172.16.238.12
+   27  history
+
+
+---
+  - name: Install and configure web server
+    hosts: all
+    become: yes
+    become_user: root
+    tasks:
+      - name: Install httpd package on all application servers
+        yum:
+          name: httpd
+          state: installed
+
+      - name: Start httpd service
+        service:
+          name: httpd
+          state: started
+          enabled: true
+
+      - name: Create blank file and add contents to it
+        copy:
+          dest: "/var/www/html/index.html"
+          content: 
+            This is a Nautilus sample file, created using Ansible!
+
+      - name: Change file ownership, group and permissions
+        file:
+          path: /var/www/html/index.html
+          owner: apache
+          group: apache
+          mode: '0755'
+
+      - name: Adding line "Welcome to Nautilus Group!"
+        lineinfile:
+          path: /var/www/html/index.html
+          line: "Welcome to Nautilus Group!"
+          insertbefore: BOF
+
+
+
+
+
+
+
+
+
+NOTE
+====
+
+IN JUMPHOST /home/thor/ansible HAVE 3 FILES 1.ansible.cfg
+  					        [defaults]
+                                                host_key_checking = False
+					      2.inventory folder
+ 						stapp01 ansible_host=172.16.238.10 ansible_ssh_pass=Ir0nM@n ansible_user=tony
+						stapp02 ansible_host=172.16.238.11 ansible_ssh_pass=Am3ric@ ansible_user=steve
+						stapp03 ansible_host=172.16.238.12 ansible_ssh_pass=BigGr33n ansible_user=banner                                     
+					      3.playbook.yml
+---
+  - name: Install and configure web server
+    hosts: all
+    become: yes
+    become_user: root
+    tasks:
+      - name: Install httpd package on all application servers
+        yum:
+          name: httpd
+          state: installed
+
+      - name: Start httpd service
+        service:
+          name: httpd
+          state: started
+          enabled: true
+
+      - name: Create blank file and add contents to it
+        copy:
+          dest: "/var/www/html/index.html"
+          content: 
+            This is a Nautilus sample file, created using Ansible!
+
+      - name: Change file ownership, group and permissions
+        file:
+          path: /var/www/html/index.html
+          owner: apache
+          group: apache
+          mode: '0755'
+
+      - name: Adding line "Welcome to Nautilus Group!"BOF=Begining of the file
+        lineinfile:
+          path: /var/www/html/index.html
+          line: "Welcome to Nautilus Group!"
+          insertbefore: BOF 
+
+
+2.https://www.mydailytutorials.com/ansible-add-line-to-file/
+
